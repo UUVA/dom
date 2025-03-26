@@ -4,6 +4,7 @@
     padding: 0;
     font-family: "Microsoft YaHei", sans-serif;
 }
+
 body {
     background-color: #f5f5f5;
     padding: 20px;
@@ -31,16 +32,16 @@ h1 {
     color: #333;
     margin: 0;
 }
-.input-section {
+.input-seciton {
     display: flex;
     margin-bottom: 20px;
 }
 #taskInput {
-    flex: 1;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
+   flex: 1;
+   padding: 10px; 
+   border: 1px solid #ddd;
+   border-radius: 4px;
+   font-size: 16px;
 }
 button {
     background-color: #4caf50;
@@ -58,10 +59,11 @@ button:hover {
 .task-controls {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 .task-filters button {
-    background-color: #2196F3;
+    background-color: #2196df
+
 }
 .task-filters button:hover {
     background-color: #0b7dda;
@@ -70,7 +72,7 @@ button:hover {
     background-color: #ff9800;
 }
 .task-sorts button:hover {
-    background-color: #e68a00;
+  background-color: #e68a00; 
 }
 ul {
     list-style-type: none;
