@@ -132,8 +132,22 @@
                     console.log(err)
                 })
         });
-        // Async/Await GET 请求示例-------------async/await
-// Async/Await POST 请求示例-------------async/await
+        // Async/Await GET 请求示例-------------async/await 
+        document.getElementById('asyncFetchButton').addEventListener('click',async function (){
+                try {
+                    const res = await axios.get('https://s5.360game.360.cn/to5/mini/v21/category.html');
+                    console.log(res,'89898989')
+                    if(res.status === 200) {
+                        const users = res.data.data;
+                        const asyncGetResultDiv = document.getElementById('asyncGetResult');
+                        asyncGetResultDiv.innerHTML = '<h2>Users Found:</h2>' + users.map(user =>  
+                            `<li>${user.name}</li>`).join('');
+                    }
+                }catch (err) {
+                    console.log(err)
+                }
+        })
+        // Async/Await POST 请求示例-------------async/await
         document.getElementById('asyncPostButton').addEventListener('click', async function() {
                     try {
                         const inputTitle = document.getElementById('asyncTitleInput').value || '默认标题';
