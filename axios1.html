@@ -96,8 +96,31 @@
     <!-- 引入Axios库 -->
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script>
-        // GET 请求示例----------promise
-        document.getElementById('fetchButton').addEventListener('click', function() {
+        // 防抖函数
+        function debounce(func, delay) {
+            let timer;
+            return function() {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    func.apply(this, arguments);
+                }, delay);
+            };
+        }
+        // 节流函数
+        function throttle(func, delay) {
+            let lastTime = 0;
+            return function() {
+                const now = new Date().getTime();
+                if (now - lastTime >= delay) {
+                    func.apply(this, arguments);
+                    lastTime = now;
+                }
+            };
+        }                    
+        // 防抖和节流 ：给按钮点击事件加上防抖或节流，防止用户快速点击导致程序崩溃或浪费资源。
+        
+        // GET 请求示例----------promise    使用防抖函数包裹事件处理函数，避免频繁点击导致多次请求。
+        document.getElementById('fetchButton').addEventListener('click', debounce(function() {
                 axios.get('https://s5.360game.360.cn/to5/mini/v21/category.html').then(function(res) {
                     console.log(res.data.data,'111111111111111111111111111111111111');
                     const users = res.data.data;
@@ -108,10 +131,10 @@
                     .catch(function(err) {
                         console.log(err)
                     })
-        });
+        }, 1000));
 
-        // POST 请求示例----------promise
-        document.getElementById('postButton').addEventListener('click', function() {
+        // POST 请求示例----------promise(向服务器提交数据)
+        document.getElementById('postButton').addEventListener('click', throttle(function() {
                 const title = document.getElementById('titleInput').value || '默认标题';
                 const body = document.getElementById('bodyInput').value || '默认内容';
                 const postData = {
@@ -131,12 +154,18 @@
                 }).catch(function (err) {
                     console.log(err)
                 })
-        });
-        // Async/Await GET 请求示例-------------async/await 
-        document.getElementById('asyncFetchButton').addEventListener('click',async function (){
+        },5000));
+        // Async/Await GET 请求示例-------------async/await      使用节流函数包裹事件处理函数，限制请求频率。
+        // 举个例子：假设你在玩一个射击游戏，按住鼠标左键可以连续开枪。如果没有节流，你会疯狂地射出无数子弹。有了节流，系统会限制你每秒只能发射一颗子弹，不管你怎么按。
+        document.getElementById('asyncFetchButton').addEventListener('click',debounce(async function (){
                 try {
-                    const res = await axios.get('https://s5.360game.360.cn/to5/mini/v21/category.html');
-                    console.log(res,'89898989')
+                    // 使用 async/await 发送 GET请求
+                    const res = await axios.get(
+                        'https://s5.360game.360.cn/to5/mini/v21/category.html');
+
+                    // 处理成功情况
+                    const users = response.data.data;
+                    console.log(res,'async/await GET 结果')
                     if(res.status === 200) {
                         const users = res.data.data;
                         const asyncGetResultDiv = document.getElementById('asyncGetResult');
@@ -146,9 +175,9 @@
                 }catch (err) {
                     console.log(err)
                 }
-        })
+        },1000))
         // Async/Await POST 请求示例-------------async/await
-        document.getElementById('asyncPostButton').addEventListener('click', async function() {
+        document.getElementById('asyncPostButton').addEventListener('click', throttle(async function() {
                     try {
                         const inputTitle = document.getElementById('asyncTitleInput').value || '默认标题';
                         const inputBody = document.getElementById('asyncBodyInput').value || '默认内容';
@@ -171,7 +200,7 @@
                     } catch (err) {
                         console.error(err);
                     }
-            });
+            },5000));
     </script>
 </body>
 </html>
