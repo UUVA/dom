@@ -34,8 +34,8 @@
         }
 
         .chart {
-            width: 500px;
-            height: 350px;
+            width: 600px;
+            height: 450px;
         }
     </style>
 </head>
@@ -231,18 +231,12 @@
                 }]
             };
             scatterChart.setOption(scatterOption);
-            window.addEventListener('resize', function () {
-                lineChart.resize();
-                barChart.resize();
-                pieChart.resize();
-                scatterChart.resize();
-            });
-    
+
             // 5.雷达图
             const radarChart = echarts.init(document.getElementById('radarChart'));
             const radarOption = {
                     title: {
-                        text: 'Radar Chart'
+                        text: 'Basic Radar Chart'
                     },
                     legend: {
                         data: ['Allocated Budget', 'Actual Spending']
@@ -276,6 +270,15 @@
                     ]
             };
             radarChart.setOption(radarOption);
+
+            window.addEventListener('resize', function () {
+                lineChart.resize();
+                barChart.resize();
+                pieChart.resize();
+                scatterChart.resize();
+            });
+    
+            
     </script>
 </body>
 </html>
