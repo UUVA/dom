@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -228,35 +229,37 @@
                 margin: 0;
                 border-radius: 0;
             }
-            
+
             body {
                 padding: 0;
             }
-            
+
             h1 {
                 font-size: 24px;
             }
-            
+
             .search-input {
                 padding: 12px 15px;
             }
-            
-            th, td {
+
+            th,
+            td {
                 padding: 10px 8px;
                 font-size: 14px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>人员信息搜索系统</h1>
-        
+
         <div class="search-box">
             <input type="text" class="search-input" id="searchInput" placeholder="请输入姓名或学号后四位/全部学号...">
             <div class="search-history" id="searchHistory"></div>
         </div>
-        
+
         <div class="table-wrapper">
             <table>
                 <thead>
@@ -271,9 +274,14 @@
                 <tbody id="tableBody"></tbody>
             </table>
         </div>
-        
+
         <div id="noResults" class="no-results">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 10px; color: #9ca3af;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                style="margin-bottom: 10px; color: #9ca3af;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
             <div>没有找到匹配的结果</div>
         </div>
     </div>
@@ -332,13 +340,16 @@
 
         const searchinput = document.getElementById('searchinput');
         const searchHistory = document.getElementById('searchHistory');
-        const tableBody  = document.getElementById('tableBody');
+        const tableBody = document.getElementById('tableBody');
         const noResults = document.getElementById('noResults');
+
+        // 定义一个数组为：行本地存储中获取搜索历史的数据或者为空数组
+        let historyList = JSON.parse(localStorage.getItem('searchHistory')) || [];
 
         // 防抖函数，一定时间内，多次执行，只执行最后一次
         function debounce(func, delay) {
             let timer;
-            return function() {
+            return function () {
                 clearTimeout(timer);
                 timer = setTimeout(() => {
                     func.apply(this, arguments);
@@ -374,33 +385,124 @@
 
         //搜索函数
         function searchData(keyword) {
-            if(!keyword) {
+            if (!keyword) {
                 initTable(dataList);
                 return;
             }
 
             const filteredData = dataList.filter(item => {
                 const isNumeric = /^\d+$/.test(keyword);
-                if(isNumeric) {
+                if (isNumeric) {
                     if (keyword.length === 4) {
                         return item.id.endsWith(keyword);
                     } else if (keyword.length === 10) {
-                        return item,id === keyword;
+                        return item, id === keyword;
                     }
                     return false;
-                }else {
+                } else {
                     return item.name.toLowerCase().includes(keyword.toLowerCase())
                 }
             })
             initTable(filteredData);
         }
 
+        //添加到搜索历史函数
+        function addToHistory(keyword) {
+            //此时返回的historyList是经过筛选得出的，同时过滤掉相同输入值的新数组
+            historyList = historyList.filter(item => item !== keyword);
+            //把搜索值添加到历史记录开头
+            historyList.unshift(keyword);
+
+            if (historyList.length > 1) {
+                historyList = historyList.slice(0, 1);
+            }
+            localStorage.setItem('searchHistory', JSON.stringify(historyList));
+            renderHistory();
+        }
+
+        // 渲染搜索历史函数
+        function renderHistory() {
+            searchHistory.innerHTML = '';
+            historyList.forEach(item => {
+                console.log(item, '9999999999999999999999');
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+
+                const textSpan = document.createElement('span');
+                textSpan.textContent = item;
+                textSpan.style.flexGrow = "1";
+                textSpan.style.cursor = "pointer";
+
+                historyItem.addEventListener('click', function (event) {
+                    if (!event.target.classList.contains("delete-history")) {
+                        searchInput.value = item;
+                        searchHistory.style.display = "none";
+                        searchData(item);
+                    }
+                })
+
+                const deleteBtn = document.createElement("span");
+                deleteBtn.className = "delete-history";
+                deleteBtn.textContent = "X";
+                deleteBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    deleteHistory(item);
+                });
+
+                historyItem.appendChild(textSpan);
+                historyItem.appendChild(deleteBtn);
+                searchHistory.appendChild(historyItem);
+            });
+        }
+
+        // 删除搜索历史函数
+        function deleteHistory(keyword) {
+            //此时返回的historyList是经过筛选得出的，同时过滤掉相同输入值的新数组
+            historyList = historyList.filter(item => item !== keyword);
+            localStorage.setItem('searchHistory', JSON.stringify(historyList));
+            renderHistory();
+            if (historyList.length === 0) {
+                searchHistory.style.display = 'none';
+            }
+        }
+
+        // 添加按键松开事件来处理完整的搜索历史
+        searchInput.addEventListener('keyup', function (e) {
+            if (e.key === 'Enter') {
+                const keyword = this.value.trim();
+                if (keyword) {
+                    addToHistory(keyword);
+                }
+            }
+        })
+        // 当搜索框失去焦点时也添加到历史记录
+        searchInput.addEventListener('blur', function () {
+            const keyword = this.value.trim();
+            if (keyword) {
+                addToHistory(keyword);
+            }
+        })
+        // 搜索框获取焦点时显示历史记录
+        searchInput.addEventListener('focus', function () {
+            if (historyList.length > 0) {
+                renderHistory();
+                searchHistory.style.display = 'block';
+            }
+        })
+        // 当点击页面其他部分的地方的时候，搜索历史会消失
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !searchHistory.contains(e.target)) {
+                searchHistory.style.display = 'none';
+            }
+        })
+
         //搜索输入事件
-        searchInput.addEventListener('input', debounce(function() {
+        searchInput.addEventListener('input', debounce(function () {
             const keyword = searchInput.value.trim();
             searchData(keyword);
-        } ));
+        }));
         initTable(dataList);
     </script>
 </body>
+
 </html>
