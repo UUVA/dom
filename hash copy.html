@@ -161,7 +161,69 @@
     </div>
 
     <script>
-       
+    //    将十六进制字符串转化为二进制字符串
+    function convertHexToBin(hex) {
+        const cleanHex = hex.trim();
+        let result = "";
+        // 遍历每个字符串
+        for (let i =0; i < cleanHex.length; i++) {
+            // 获取每一个16进制字符
+            const hexChar = cleanHex[i];
+            // 将16进制字符转化为10进制
+            const decimal = parseInt(hexChar, 16);
+            // 转化为二进制
+            let binary = decimal.toString(2);
+            // 补齐4位 （因为1个16进制字符 = 4位二进制）
+            while (binary.length < 4) {
+                binary = "0" + binary;
+            }
+
+            result = result + binary;
+        }
+        return result;
+    }
+    // 根据选择的编码方式格式化哈希结果
+    function formatWithEncoding(words, encoding) {
+        // 如果是二进制编码，再转化成二进制
+        if(encoding === "Bin") {
+        // 先转化成16进制，再转化成二进制
+        const hex = words.toString(CryptoJS.enc.Hex);
+        return convertHexToBin(hex);
+    }
+    // 其他编码格式，使用CryptoJS提供的编码方式
+    return words.toString(CryptoJS.enc[encoding]);
+    }
+
+    // 定义支持的哈希算法
+    const algos = {}
+    algos.MD5 = CryptoJS.MD5;
+    algos.SHA1 = CryptoJS.SHA1;
+    algos.SHA256 = CryptoJS.SHA256;
+    algos.SHA224 = CryptoJS.SHA224;
+    algos.SHA512 = CryptoJS.SHA512;
+    algos.SHA384 = CryptoJS.SHA384;
+    algos.SHA3 = CryptoJS.SHA3;
+    algos.PIPEMD160 = CryptoJS.RIPEMD160;
+    // 更新页面上的显示的所有哈希值
+    function updateHashes() {
+        const text = document.getElementById("clearText").value;
+        const encoding = document.getElementById("encoding").value;
+        const resultDiv = document.getElementById("hashResults");
+        resultDiv.innerHTML = "";
+        // 遍历所有算法
+        for (const name in algos) {
+            if (algos.hasOwnProperty(name)) {
+                const algo = algos[name];
+                const hash = formatWithEncoding(algo(text), encoding);
+                // 创建一个新的div元素来显示哈希值
+                const div = document.createElement("div");
+                div.className = "hash-group";
+                div.innerHTML = `<div class="hash-label">` + name + `</div>` +
+                `<div class="hash-value" onclick = "copyToClipboard(this)">` + hash + `</div>`;
+                resultDiv.appendChild(div);
+            }
+        }
+    }
     </script>
 </body>
 
